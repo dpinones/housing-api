@@ -8,5 +8,6 @@ CREATE TABLE "housings" (
   "square_meters" INTEGER NOT NULL,
   "number_bathrooms" INTEGER NOT NULL,
   "number_bedrooms" INTEGER NOT NULL,
-  "type_housing_id" TEXT NOT NULL
+  "type_housing_id"	INTEGER NOT NULL,
+  FOREIGN KEY("type_housing_id") REFERENCES "type_housings"("id") ON UPDATE CASCADE
 );

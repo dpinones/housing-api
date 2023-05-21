@@ -13,8 +13,9 @@ use rocket_contrib::json::{Json, JsonValue};
 use serde_json::json;
 
 use crate::database::establish_connection;
-use crate::models::{NewHousing, Housing, UpdateHousing};
+use crate::models::{NewHousing, Housing, UpdateHousing, TypeHousings};
 use crate::schema::housings::dsl::housings;
+use crate::schema::type_housings::dsl::type_housings;
 
 mod schema;
 mod database;
@@ -25,7 +26,10 @@ mod models;
 pub fn get_housings() -> Json<JsonValue> {
     let mut connection = establish_connection();
 
-    let housing_list = housings.load::<Housing>(&mut connection).expect("Error loading housings");
+    let housing_list = housings
+        .inner_join(type_housings)
+        .load::<(Housing, TypeHousings)>(&mut connection)
+        .expect("Error loading housings");
 
     Json(JsonValue::from(json!({
         "housings": housing_list,
@@ -87,11 +91,23 @@ pub fn update_housing(id: i32, update_housing: Json<UpdateHousing>) -> Json<Json
     })))
 }
 
+#[get("/type-housings")]
+pub fn get_type_housings() -> Json<JsonValue> {
+    let mut connection = establish_connection();
+
+    let type_housing_list = type_housings.load::<TypeHousings>(&mut connection).expect("Error loading type of housings");
+
+    Json(JsonValue::from(json!({
+        "type_housings": type_housing_list,
+    })))
+}
+
 fn main() {
     rocket::ignite().mount("/", routes![
         get_housings,
         delete_housing,
         create_housing,
         update_housing,
+        get_type_housings,
     ]).launch();
 }

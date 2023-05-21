@@ -3,7 +3,9 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::schema::housings;
 
-#[derive(Queryable, Serialize)]
+#[derive(Identifiable, Queryable, Associations, PartialEq, Debug, Serialize, Deserialize)]
+#[diesel(belongs_to(TypeHousings, foreign_key = type_housing_id))]
+#[diesel(table_name = housings)]
 pub struct Housing {
     pub id: i32,
     pub street_name: String,
@@ -13,7 +15,7 @@ pub struct Housing {
     pub square_meters: i32,
     pub number_bathrooms: i32,
     pub number_bedrooms: i32,
-    pub type_housing_id: String,
+    pub type_housing_id: i32,
 }
 
 #[derive(Queryable, Insertable, Serialize, Deserialize)]
@@ -26,7 +28,7 @@ pub struct NewHousing<'a> {
     pub square_meters: i32,
     pub number_bathrooms: i32,
     pub number_bedrooms: i32,
-    pub type_housing_id: &'a str,
+    pub type_housing_id: i32,
 }
 
 #[derive(Deserialize, AsChangeset)]
@@ -39,5 +41,11 @@ pub struct UpdateHousing {
     pub square_meters: Option<i32>,
     pub number_bathrooms: Option<i32>,
     pub number_bedrooms: Option<i32>,
-    pub type_housing_id: Option<String>,
+    pub type_housing_id: Option<i32>,
+}
+
+#[derive(Queryable, Serialize)]
+pub struct TypeHousings {
+    pub id: i32,
+    pub name: String
 }
