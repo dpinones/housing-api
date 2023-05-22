@@ -1,15 +1,12 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-// #[macro_use]
 extern crate diesel;
 
 use diesel::prelude::*;
-use rocket::delete;
-use rocket::get;
-use rocket::post;
-use rocket::put;
-use rocket::routes;
+use rocket::{routes, put, post, get, delete };
+use rocket::http::Method;
 use rocket_contrib::json::{Json, JsonValue};
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use serde_json::json;
 
 use crate::database::establish_connection;
@@ -22,22 +19,16 @@ mod database;
 mod models;
 
 
-#[get("/housings")]
+#[get("/api/housings")]
 pub fn get_housings() -> Json<JsonValue> {
     let mut connection = establish_connection();
 
-    let housing_list = housings
-        .inner_join(type_housings)
-        .load::<(Housing, TypeHousings)>(&mut connection)
-        .expect("Error loading housings");
+    let housing_list = housings.load::<Housing>(&mut connection).expect("Error loading housings");
 
-    Json(JsonValue::from(json!({
-        "housings": housing_list,
-    })))
+    Json(JsonValue::from(json!(housing_list)))
 }
 
-
-#[delete("/housings/<id>")]
+#[delete("/api/housings/<id>")]
 pub fn delete_housing(id: i32) -> Json<JsonValue> {
     let mut connection = establish_connection();
 
@@ -50,7 +41,7 @@ pub fn delete_housing(id: i32) -> Json<JsonValue> {
 }
 
 
-#[post("/housings", format = "json", data = "<new_housing>")]
+#[post("/api/housings", format = "json", data = "<new_housing>")]
 pub fn create_housing(new_housing: Json<NewHousing>) -> Json<JsonValue> {
     let mut connection = establish_connection();
     let new_housing = NewHousing {
@@ -76,7 +67,7 @@ pub fn create_housing(new_housing: Json<NewHousing>) -> Json<JsonValue> {
     })))
 }
 
-#[put("/housings/<id>", data = "<update_housing>")]
+#[put("/api/housings/<id>", data = "<update_housing>")]
 pub fn update_housing(id: i32, update_housing: Json<UpdateHousing>) -> Json<JsonValue> {
     let mut connection = establish_connection();
 
@@ -91,7 +82,7 @@ pub fn update_housing(id: i32, update_housing: Json<UpdateHousing>) -> Json<Json
     })))
 }
 
-#[get("/type-housings")]
+#[get("/api/type-housings")]
 pub fn get_type_housings() -> Json<JsonValue> {
     let mut connection = establish_connection();
 
@@ -103,11 +94,36 @@ pub fn get_type_housings() -> Json<JsonValue> {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![
-        get_housings,
-        delete_housing,
-        create_housing,
-        update_housing,
-        get_type_housings,
-    ]).launch();
+    rocket::ignite()
+        .mount("/", routes![
+            get_housings,
+            delete_housing,
+            create_housing,
+            update_housing,
+            get_type_housings,
+        ])
+        .attach(make_cors())
+        .launch();
+}
+
+fn make_cors() -> Cors {
+    let allowed_origins = AllowedOrigins::some_exact(&[
+        "http://localhost:4200",
+    ]);
+
+    // let allowed_origins = AllowedOrigins::all(); // Permitir todas las solicitudes desde cualquier origen
+    let allowed_methods = vec![Method::Get, Method::Post, Method::Put, Method::Delete]
+        .into_iter()
+        .map(From::from)
+        .collect();
+    let allowed_headers = AllowedHeaders::all();
+
+    CorsOptions {
+        allowed_origins,
+        allowed_methods,
+        allowed_headers,
+        ..Default::default()
+    }
+        .to_cors()
+        .expect("Failed to create CORS")
 }
