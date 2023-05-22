@@ -23,7 +23,4 @@ diesel::table! {
 
 diesel::joinable!(housings -> type_housings (type_housing_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    housings,
-    type_housings,
-);
+diesel::allow_tables_to_appear_in_same_query!(housings, type_housings,);

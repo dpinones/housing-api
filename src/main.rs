@@ -3,27 +3,28 @@
 extern crate diesel;
 
 use diesel::prelude::*;
-use rocket::{routes, put, post, get, delete };
 use rocket::http::Method;
+use rocket::{delete, get, post, put, routes};
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use serde_json::json;
 
 use crate::database::establish_connection;
-use crate::models::{NewHousing, Housing, UpdateHousing, TypeHousings};
+use crate::models::{Housing, NewHousing, TypeHousings, UpdateHousing};
 use crate::schema::housings::dsl::housings;
 use crate::schema::type_housings::dsl::type_housings;
 
-mod schema;
 mod database;
 mod models;
-
+mod schema;
 
 #[get("/api/housings")]
 pub fn get_housings() -> Json<JsonValue> {
     let mut connection = establish_connection();
 
-    let housing_list = housings.load::<Housing>(&mut connection).expect("Error loading housings");
+    let housing_list = housings
+        .load::<Housing>(&mut connection)
+        .expect("Error loading housings");
 
     Json(JsonValue::from(json!(housing_list)))
 }
@@ -32,14 +33,15 @@ pub fn get_housings() -> Json<JsonValue> {
 pub fn delete_housing(id: i32) -> Json<JsonValue> {
     let mut connection = establish_connection();
 
-    diesel::delete(housings.find(id)).execute(&mut connection).expect(&format!("Unable to find housing {}", id));
+    diesel::delete(housings.find(id))
+        .execute(&mut connection)
+        .unwrap_or_else(|_| panic!("Unable to find housing {}", id));
 
     Json(JsonValue::from(json!({
         "status": "success",
         "message": format!("Housing with ID {} has been deleted", id),
     })))
 }
-
 
 #[post("/api/housings", format = "json", data = "<new_housing>")]
 pub fn create_housing(new_housing: Json<NewHousing>) -> Json<JsonValue> {
@@ -86,7 +88,9 @@ pub fn update_housing(id: i32, update_housing: Json<UpdateHousing>) -> Json<Json
 pub fn get_type_housings() -> Json<JsonValue> {
     let mut connection = establish_connection();
 
-    let type_housing_list = type_housings.load::<TypeHousings>(&mut connection).expect("Error loading type of housings");
+    let type_housing_list = type_housings
+        .load::<TypeHousings>(&mut connection)
+        .expect("Error loading type of housings");
 
     Json(JsonValue::from(json!({
         "type_housings": type_housing_list,
@@ -95,21 +99,22 @@ pub fn get_type_housings() -> Json<JsonValue> {
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![
-            get_housings,
-            delete_housing,
-            create_housing,
-            update_housing,
-            get_type_housings,
-        ])
+        .mount(
+            "/",
+            routes![
+                get_housings,
+                delete_housing,
+                create_housing,
+                update_housing,
+                get_type_housings,
+            ],
+        )
         .attach(make_cors())
         .launch();
 }
 
 fn make_cors() -> Cors {
-    let allowed_origins = AllowedOrigins::some_exact(&[
-        "http://localhost:4200",
-    ]);
+    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:4200"]);
 
     // let allowed_origins = AllowedOrigins::all(); // Permitir todas las solicitudes desde cualquier origen
     let allowed_methods = vec![Method::Get, Method::Post, Method::Put, Method::Delete]
@@ -124,6 +129,6 @@ fn make_cors() -> Cors {
         allowed_headers,
         ..Default::default()
     }
-        .to_cors()
-        .expect("Failed to create CORS")
+    .to_cors()
+    .expect("Failed to create CORS")
 }

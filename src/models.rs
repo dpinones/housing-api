@@ -1,4 +1,4 @@
-use diesel::{prelude::*};
+use diesel::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::schema::housings;
@@ -47,5 +47,5 @@ pub struct UpdateHousing {
 #[derive(Queryable, Serialize)]
 pub struct TypeHousings {
     pub id: i32,
-    pub name: String
+    pub name: String,
 }
