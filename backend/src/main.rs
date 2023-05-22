@@ -4,7 +4,8 @@ extern crate diesel;
 
 use diesel::prelude::*;
 use rocket::http::Method;
-use rocket::{delete, get, post, put, routes};
+use rocket::{delete, get, post, put, routes, catch};
+use rocket_codegen::catchers;
 use rocket_contrib::json::{Json, JsonValue};
 use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 use serde_json::json;
@@ -97,6 +98,11 @@ pub fn get_type_housings() -> Json<JsonValue> {
     })))
 }
 
+#[catch(404)]
+fn not_found() -> String {
+    format!("Error:No matching routes found")
+}
+
 fn main() {
     rocket::ignite()
         .mount(
@@ -109,6 +115,7 @@ fn main() {
                 get_type_housings,
             ],
         )
+        .register(catchers![not_found])
         .attach(make_cors())
         .launch();
 }
