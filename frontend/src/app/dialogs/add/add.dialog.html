@@ -1,0 +1,59 @@
+<div class="container">
+  <h3 mat-dialog-title>Add Housing</h3>
+
+  <form class="mat-dialog-content" (ngSubmit)="submit" #formControl="ngForm">
+
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput placeholder="Street Name" [(ngModel)]="data.street_name" name="street_name">
+      </mat-form-field>
+    </div>
+
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Street Number" [(ngModel)]="data.street_number" name="street_number">
+      </mat-form-field>
+    </div>
+
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Zip code" [(ngModel)]="data.zip_code" name="zip_code">
+      </mat-form-field>
+    </div>
+
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Floor" [(ngModel)]="data.floor" name="floor">
+      </mat-form-field>
+    </div>
+    
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Bedrooms" [(ngModel)]="data.number_bedrooms" name="number_bedrooms">
+      </mat-form-field>
+    </div>
+
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Bathrooms" [(ngModel)]="data.number_bathrooms" name="number_bathrooms">
+      </mat-form-field>
+    </div>
+
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Square meters" [(ngModel)]="data.square_meters" name="square_meters">
+      </mat-form-field>
+    </div>
+    
+    <div class="form">
+      <mat-form-field color="accent">
+        <input matInput type="number" placeholder="Type housing" [(ngModel)]="data.type_housing_id" name="type_housing_id">
+      </mat-form-field>
+    </div>
+
+    <div mat-dialog-actions>
+      <button mat-button [type]="submit" [disabled]="!formControl.valid" [mat-dialog-close]="1" (click)="confirmAdd()">Save</button>
+      <button mat-button (click)="onNoClick()" tabindex="-1">Cancel</button>
+    </div>
+  </form>
+</div>

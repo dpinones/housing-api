@@ -1,3 +1,29 @@
-.idea
+# Ignorar archivos generados por el CLI de Angular
+dist/
+node_modules/
+
+# Ignorar archivos y carpetas generados por herramientas de desarrollo
+.idea/
+.vscode/
+.sass-cache/
+
+# Ignorar archivos de configuración local
+src/environments/environment*.ts
+
+# Ignorar archivos de respaldo y temporales
+*~
+*.swp
+.DS_Store
+
+# Ignorar archivos de registro y errores
+log/
+*.log
+
+# Ignorar archivos de dependencias de Angular generados por el CLI
+angular.json
+package-lock.json
+tsconfig.json
+.angular
+
 target
 .env

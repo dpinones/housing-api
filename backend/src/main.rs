@@ -114,9 +114,7 @@ fn main() {
 }
 
 fn make_cors() -> Cors {
-    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:4200"]);
-
-    // let allowed_origins = AllowedOrigins::all(); // Permitir todas las solicitudes desde cualquier origen
+    let allowed_origins = AllowedOrigins::all();
     let allowed_methods = vec![Method::Get, Method::Post, Method::Put, Method::Delete]
         .into_iter()
         .map(From::from)
